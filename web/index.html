@@ -41,7 +41,8 @@
   .msg .meta { display: block; margin-top: 6px; color: var(--muted); font-size: 12px; }
   .msg.error { align-self: center; color: var(--err); background: transparent; font-size: 14px; }
   .empty { margin: auto; text-align: center; color: var(--muted); max-width: 420px; }
-  form { display: flex; gap: 8px; padding: 12px 16px; border-top: 1px solid var(--line); background: var(--panel); }
+  form { display: flex; gap: 8px; padding: 12px 16px 6px; border-top: 1px solid var(--line); background: var(--panel); }
+  .aiNote { margin: 0; padding: 0 16px 10px; background: var(--panel); color: var(--muted); font-size: 12px; text-align: center; }
   textarea { font: inherit; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 10px;
              padding: 10px 12px; resize: none; }
   #input { flex: 1; min-height: 44px; max-height: 200px; }
@@ -77,6 +78,7 @@
       <textarea id="input" rows="1" placeholder="Message…" title="Enter sends, Shift+Enter makes a new line" autocomplete="off"></textarea>
       <button class="primary" id="sendBtn" type="submit">Send</button>
     </form>
+    <p class="aiNote">You're talking with an AI. Answers can be wrong. Not for emergencies, or for medical, legal or financial advice.</p>
   </section>
   <aside id="panel">
     <div class="head">

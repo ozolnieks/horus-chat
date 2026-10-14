@@ -99,8 +99,23 @@ h = Horus.load("teleportal/Qwen2.5-14B-self")
 answer, thinking = h.chat([{"role": "user", "content": "Hello! Who are you?"}], "selves/horus.md")
 ```
 
+## Privacy
+
+The app runs entirely on your own machine (or on the GPU you rent). It sends nothing to us: there is no tracking, no
+account and no analytics. Conversations are not saved; they exist only in the open browser tab and are gone when you
+close it or start a new one. The browser remembers only three settings (temperature and the two thinking switches). The
+only other network traffic is downloading the model from Hugging Face, under Hugging Face's own terms.
+
+## Responsible use
+
+Horus is an AI, and the page says so. If you put him or another self in front of other people - on a website, in a
+product, in a game - tell them they are talking with an AI. In the EU this is required by the AI Act (Article 50), and
+the terms of the data he was trained on ask for it too. He can be wrong, especially about exact facts, and he is not a
+substitute for professional or emergency help.
+
 ## Licence
 
-Apache 2.0 (see LICENSE). The base models are Qwen2.5-14B and Qwen2.5-32B by the Qwen team at Alibaba, also Apache 2.0.
-Horus's personality was designed by Teleportal. More about the models, their training and their known weaknesses is
-on their Hugging Face pages.
+Copyright 2026 IK Teleportal. Licensed under the Apache License 2.0 (see LICENSE and NOTICE). The base models are
+Qwen2.5-14B and Qwen2.5-32B by the Qwen team at Alibaba Cloud, also Apache 2.0; this project is not affiliated with or
+endorsed by them. Horus's personality was designed by IK Teleportal. More about the models, their training data and
+their known weaknesses is on their Hugging Face pages.
