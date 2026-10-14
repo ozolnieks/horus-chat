@@ -7,6 +7,9 @@ talk with someone else, with no retraining.
 The models run on an NVIDIA GPU. Use the one in your own PC, or rent one and reach it from any computer (a Mac or a
 laptop too) through an SSH tunnel.
 
+![Horus Chat](docs/chat.png)
+*Answers from a real session with the 14B on a rented RTX A4000 (16 GB).*
+
 | Model | GPU memory | Example cards |
 |---|---|---|
 | Qwen2.5-32B-self | 24 GB or more | RTX 3090, 4090, 5090, A100 |
