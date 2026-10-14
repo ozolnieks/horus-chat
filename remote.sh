@@ -28,7 +28,7 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 run() { ssh -o ConnectTimeout=20 "${SSH[@]:1}" "$@"; }       # options must come before the host
 
 if [ "$ACTION" = stop ]; then
-  run 'cd ~/horus-chat 2>/dev/null && [ -f server.pid ] && kill "$(cat server.pid)" 2>/dev/null && rm -f server.pid && echo "stopped" || echo "no server running"'
+  run 'cd ~/horus-chat 2>/dev/null && [ -f server.pid ] && kill "$(cat server.pid)" 2>/dev/null && rm -f server.pid server.port && echo "stopped" || echo "no server running"'
   exit 0
 fi
 [ -n "$ADDON" ] || { echo "--addon is required, e.g. --addon teleportal/Qwen2.5-32B-self"; exit 1; }
@@ -48,12 +48,24 @@ run 'cd ~/horus-chat && { [ -f /venv/main/bin/activate ] && . /venv/main/bin/act
 echo "3/4 starting the server ..."
 run "cd ~/horus-chat && { [ -f /venv/main/bin/activate ] && . /venv/main/bin/activate; true; } && \
   if [ -f server.pid ] && kill -0 \"\$(cat server.pid)\" 2>/dev/null; then echo '   already running - reconnecting'; else \
-  nohup python3 server.py --addon '$ADDON' --self '$SELF_NAME' --port $PORT > server.log 2>&1 < /dev/null & echo \$! > server.pid; fi"
+  nohup python3 server.py --addon '$ADDON' --self '$SELF_NAME' --port $PORT > server.log 2>&1 < /dev/null & echo \$! > server.pid; echo $PORT > server.port; fi"
+RPORT="$(run "cat ~/horus-chat/server.port 2>/dev/null || echo $PORT" 2>/dev/null | tail -1 | tr -cd 0-9)"   # a running server keeps its port
+RPORT="${RPORT:-$PORT}"
 
 echo "   waiting for the model to load (the first time it downloads the base model: 9-18 GB) ..."
 LAST=""
-until run "curl -s -m 5 http://127.0.0.1:$PORT/api/info" 2>/dev/null | grep -q '"ready": true'; do
-  if ! run 'cd ~/horus-chat && kill -0 "$(cat server.pid)" 2>/dev/null'; then
+FAILS=0
+until run "curl -s -m 5 http://127.0.0.1:$RPORT/api/info" 2>/dev/null | grep -q '"ready": true'; do
+  ALIVE=0; run 'cd ~/horus-chat && kill -0 "$(cat server.pid)" 2>/dev/null' || ALIVE=$?
+  if [ $ALIVE -eq 255 ]; then                                  # ssh itself failed: the connection, not the server
+    FAILS=$((FAILS + 1))
+    if [ $FAILS -ge 6 ]; then
+      echo "   lost the connection to the GPU machine. Is it still running? Run the same command again to reconnect."; exit 1
+    fi
+    echo "   connection to the GPU machine lost - retrying ($FAILS/5) ..."; sleep 20; continue
+  fi
+  FAILS=0
+  if [ $ALIVE -ne 0 ]; then
     echo "   the server stopped - its last lines:"; run 'tail -15 ~/horus-chat/server.log'; exit 1
   fi
   NOW="$(run 'tail -c 300 ~/horus-chat/server.log | tr "\r" "\n" | grep -v "^\s*$" | tail -1' 2>/dev/null || true)"
@@ -66,4 +78,4 @@ until run "curl -s -m 5 http://127.0.0.1:$PORT/api/info" 2>/dev/null | grep -q '
 done
 
 echo "4/4 ready. Open http://localhost:$PORT in your browser. Keep this window open; Ctrl+C closes the tunnel."
-exec ssh -N -o ServerAliveInterval=30 -o ExitOnForwardFailure=yes -L "$PORT:127.0.0.1:$PORT" "${SSH[@]:1}"
+exec ssh -N -o ServerAliveInterval=30 -o ExitOnForwardFailure=yes -L "$PORT:127.0.0.1:$RPORT" "${SSH[@]:1}"
