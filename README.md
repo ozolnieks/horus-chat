@@ -1,6 +1,6 @@
 # Horus Chat
 
-Chat in your browser with **Qwen2.5-32B-self** or **Qwen2.5-14B-self**: language models that become the person their
+A free browser chat (non-commercial use) for **Qwen2.5-32B-self** or **Qwen2.5-14B-self**: language models that become the person their
 *self document* describes. **Horus** is the example person that comes with them. Write your own self document and you
 talk with someone else, with no retraining.
 
@@ -115,7 +115,15 @@ substitute for professional or emergency help.
 
 ## Licence
 
-Copyright 2026 IK Teleportal. Licensed under the Apache License 2.0 (see LICENSE and NOTICE). The base models are
-Qwen2.5-14B and Qwen2.5-32B by the Qwen team at Alibaba Cloud, also Apache 2.0; this project is not affiliated with or
-endorsed by them. Horus's personality was designed by IK Teleportal. More about the models, their training data and
-their known weaknesses is on their Hugging Face pages.
+Copyright 2026 IK Teleportal.
+
+- **The app** (`server.py`, `web/`, `remote.sh`, this README): free for **non-commercial use only**, under the
+  [PolyForm Noncommercial License 1.0.0](LICENSE.md) - personal use, research, education, hobby projects, and use by
+  charities, schools and public institutions. For commercial use of the app, contact consulting@inlooq.com.
+- **The models and the code that runs them** are free for commercial use too: `horus_self/`, `selves/horus.md` and
+  `HOW_TO_WRITE_A_SELF.md` are under the [Apache License 2.0](LICENSE-APACHE), the same as on the models' Hugging Face
+  pages. To build a commercial product, use the `horus_self` package directly (see "For other chat clients" above).
+
+The base models are Qwen2.5-14B and Qwen2.5-32B by the Qwen team at Alibaba Cloud (Apache 2.0); this project is not
+affiliated with or endorsed by them. Horus's personality was designed by IK Teleportal. More about the models, their
+training data and their known weaknesses is on their Hugging Face pages. See also NOTICE.

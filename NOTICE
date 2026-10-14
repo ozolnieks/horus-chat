@@ -1,7 +1,10 @@
 Horus Chat
 Copyright 2026 IK Teleportal
 
-This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+Licences:
+- The app (server.py, web/, remote.sh, README.md): PolyForm Noncommercial License 1.0.0 (see LICENSE.md).
+- horus_self/, selves/horus.md and HOW_TO_WRITE_A_SELF.md: Apache License, Version 2.0 (see LICENSE-APACHE and
+  horus_self/LICENSE) - the same files as published with the models on Hugging Face.
 
 It runs the Qwen2.5-14B-self and Qwen2.5-32B-self models (https://huggingface.co/teleportal), which are based on
 Qwen2.5-14B and Qwen2.5-32B by the Qwen team at Alibaba Cloud (Apache License 2.0). The models are downloaded from
