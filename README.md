@@ -20,7 +20,7 @@ The base model (Qwen2.5 in 4 bits, 9-18 GB) is downloaded automatically the firs
 You need Linux (or Windows with WSL2), an NVIDIA GPU from the table above, a recent driver, and Python 3.10 or newer.
 
 ```bash
-git clone https://github.com/<github-user>/horus-chat && cd horus-chat
+git clone https://github.com/ozolnieks/horus-chat && cd horus-chat
 python3 -m pip install -r requirements.txt
 python3 server.py --addon teleportal/Qwen2.5-14B-self
 ```
@@ -33,7 +33,7 @@ Rent any machine with a GPU from the table (for example on Vast.ai or RunPod, wi
 disk) and copy its SSH command. Then, on your own computer (macOS, Linux, or Windows with WSL2):
 
 ```bash
-git clone https://github.com/<github-user>/horus-chat && cd horus-chat
+git clone https://github.com/ozolnieks/horus-chat && cd horus-chat
 ./remote.sh "ssh -p 12345 root@1.2.3.4" --addon teleportal/Qwen2.5-32B-self
 ```
 
@@ -54,7 +54,7 @@ Your own self document goes with it: `--self my_self.md`.
 On the GPU machine:
 
 ```bash
-git clone https://github.com/<github-user>/horus-chat && cd horus-chat
+git clone https://github.com/ozolnieks/horus-chat && cd horus-chat
 python3 -m pip install -r requirements.txt
 nohup python3 server.py --addon teleportal/Qwen2.5-32B-self > server.log 2>&1 &
 tail -f server.log            # wait for "ready", then Ctrl+C
