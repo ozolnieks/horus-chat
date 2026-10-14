@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Horus Chat</title>
+<style>
+  :root {
+    --bg: #f6f5f2; --panel: #ffffff; --ink: #1d1d1b; --muted: #6b6a66; --line: #e3e1db;
+    --me: #1f4e79; --me-ink: #ffffff; --him: #ffffff; --accent: #1f4e79; --warn: #8a5a00; --err: #a12a2a;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #151514; --panel: #1f1f1d; --ink: #ecebe7; --muted: #9b9a95; --line: #33322f;
+      --me: #2f6aa3; --me-ink: #ffffff; --him: #262624; --accent: #7fb0e0; --warn: #e0b060; --err: #f08080;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body { background: var(--bg); color: var(--ink); font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+         display: flex; flex-direction: column; }
+  header { display: flex; align-items: center; gap: 12px; padding: 10px 16px; border-bottom: 1px solid var(--line);
+           background: var(--panel); flex-wrap: wrap; }
+  header h1 { font-size: 17px; margin: 0; font-weight: 650; }
+  header .who { color: var(--muted); font-size: 14px; }
+  header .spacer { flex: 1; }
+  button { font: inherit; font-size: 14px; border: 1px solid var(--line); background: var(--panel); color: var(--ink);
+           border-radius: 8px; padding: 6px 12px; cursor: pointer; }
+  button:hover { border-color: var(--accent); }
+  button.primary { background: var(--accent); border-color: var(--accent); color: var(--panel); }
+  button:disabled { opacity: .5; cursor: default; }
+  main { flex: 1; display: flex; min-height: 0; }
+  #chat { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+  #log { flex: 1; overflow-y: auto; padding: 20px 16px; display: flex; flex-direction: column; gap: 12px; }
+  .msg { max-width: min(720px, 88%); padding: 10px 14px; border-radius: 14px; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .msg.user { align-self: flex-end; background: var(--me); color: var(--me-ink); border-bottom-right-radius: 4px; }
+  .msg.assistant { align-self: flex-start; background: var(--him); border: 1px solid var(--line); border-bottom-left-radius: 4px; }
+  .msg .think { display: block; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px dashed var(--line);
+                color: var(--muted); font-size: 13px; }
+  .msg .meta { display: block; margin-top: 6px; color: var(--muted); font-size: 12px; }
+  .msg.error { align-self: center; color: var(--err); background: transparent; font-size: 14px; }
+  .empty { margin: auto; text-align: center; color: var(--muted); max-width: 420px; }
+  form { display: flex; gap: 8px; padding: 12px 16px; border-top: 1px solid var(--line); background: var(--panel); }
+  textarea { font: inherit; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 10px;
+             padding: 10px 12px; resize: none; }
+  #input { flex: 1; min-height: 44px; max-height: 200px; }
+  aside { width: 380px; border-left: 1px solid var(--line); background: var(--panel); display: none; flex-direction: column; }
+  aside.open { display: flex; }
+  aside .head { padding: 12px 16px; border-bottom: 1px solid var(--line); }
+  aside .head h2 { font-size: 15px; margin: 0 0 4px; }
+  aside .head p { margin: 0; color: var(--muted); font-size: 13px; }
+  aside .body { flex: 1; padding: 12px 16px; display: flex; flex-direction: column; gap: 10px; min-height: 0; overflow-y: auto; }
+  #selftext { flex: 1; min-height: 240px; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
+  label.opt { display: flex; gap: 8px; align-items: flex-start; font-size: 14px; }
+  label.opt small { display: block; color: var(--muted); font-size: 12px; }
+  .row { display: flex; gap: 8px; align-items: center; font-size: 14px; }
+  .note { font-size: 13px; color: var(--muted); }
+  .note.ok { color: var(--accent); } .note.bad { color: var(--err); }
+  @media (max-width: 760px) {
+    aside { position: fixed; inset: 0; width: auto; z-index: 5; }
+    header { padding: 10px 16px; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1 id="title">Horus</h1>
+  <span class="who" id="who">connecting…</span>
+  <span class="spacer"></span>
+  <button id="newBtn" type="button">New conversation</button>
+  <button id="panelBtn" type="button">Self &amp; settings</button>
+</header>
+<main>
+  <section id="chat">
+    <div id="log"><div class="empty" id="empty">Say hello. Each conversation starts fresh: he doesn't remember earlier ones.</div></div>
+    <form id="form">
+      <textarea id="input" rows="1" placeholder="Message… (Enter sends, Shift+Enter: new line)" autocomplete="off"></textarea>
+      <button class="primary" id="sendBtn" type="submit">Send</button>
+    </form>
+  </section>
+  <aside id="panel">
+    <div class="head">
+      <h2>Self document</h2>
+      <p>Who he is. Edit and save: the next reply follows the new version. See HOW_TO_WRITE_A_SELF.md.</p>
+    </div>
+    <div class="body">
+      <textarea id="selftext" spellcheck="false"></textarea>
+      <div class="row"><button id="saveSelf" type="button">Save self</button><span class="note" id="selfNote"></span></div>
+      <label class="opt"><input type="checkbox" id="showThink"><span>Show thinking<small>He thinks silently, without words; this shows where it happened.</small></span></label>
+      <label class="opt"><input type="checkbox" id="traceThink"><span>Trace thinking in words<small>Two written thinking steps before the silent part. For looking inside, not for normal chat: it changes his answers.</small></span></label>
+      <div class="row">Temperature <input type="range" id="temp" min="0" max="1.2" step="0.1" value="0.6"><span id="tempVal">0.6</span></div>
+      <button id="closePanel" type="button">Close</button>
+    </div>
+  </aside>
+</main>
+<script>
+const $ = id => document.getElementById(id);
+let messages = [], busy = false;
+
+function store(key, val) { try { val === undefined ? localStorage.removeItem(key) : localStorage.setItem(key, val); } catch (e) {} }
+function load(key) { try { return localStorage.getItem(key); } catch (e) { return null; } }
+
+function add(role, text, extra) {
+  $("empty")?.remove();
+  const d = document.createElement("div");
+  d.className = "msg " + role;
+  if (extra && extra.thinking && $("showThink").checked) {
+    const t = document.createElement("span"); t.className = "think"; t.textContent = extra.thinking; d.appendChild(t);
+  }
+  d.appendChild(document.createTextNode(text));
+  if (extra && extra.seconds !== undefined) {
+    const m = document.createElement("span"); m.className = "meta"; m.textContent = extra.seconds + " s"; d.appendChild(m);
+  }
+  $("log").appendChild(d);
+  $("log").scrollTop = $("log").scrollHeight;
+  return d;
+}
+
+async function send(text) {
+  if (busy || !text.trim()) return;
+  busy = true; $("sendBtn").disabled = true;
+  messages.push({ role: "user", content: text });
+  add("user", text);
+  const wait = add("assistant", "…");
+  try {
+    const r = await fetch("/api/chat", { method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ messages, temperature: parseFloat($("temp").value), written_thinking: $("traceThink").checked }) });
+    const j = await r.json();
+    wait.remove();
+    if (!r.ok) throw new Error(j.error || r.statusText);
+    messages.push({ role: "assistant", content: j.answer });
+    add("assistant", j.answer, j);
+  } catch (e) {
+    wait.remove(); messages.pop();
+    add("error", "No answer: " + e.message + " — is the server (and the SSH tunnel) still running?");
+  }
+  busy = false; $("sendBtn").disabled = false; $("input").focus();
+}
+
+$("form").addEventListener("submit", e => { e.preventDefault(); const t = $("input").value; $("input").value = ""; autosize(); send(t); });
+$("input").addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); $("form").requestSubmit(); } });
+function autosize() { const i = $("input"); i.style.height = "auto"; i.style.height = Math.min(i.scrollHeight, 200) + "px"; }
+$("input").addEventListener("input", autosize);
+$("newBtn").addEventListener("click", () => {
+  messages = []; $("log").innerHTML = '<div class="empty" id="empty">New conversation.</div>'; $("input").focus();
+});
+$("panelBtn").addEventListener("click", () => $("panel").classList.toggle("open"));
+$("closePanel").addEventListener("click", () => $("panel").classList.remove("open"));
+$("temp").addEventListener("input", () => { $("tempVal").textContent = $("temp").value; store("temp", $("temp").value); });
+for (const id of ["showThink", "traceThink"]) $(id).addEventListener("change", () => store(id, $(id).checked ? "1" : "0"));
+
+async function loadSelf() {
+  try {
+    const j = await (await fetch("/api/self")).json();
+    $("selftext").value = j.text;
+    const m = j.text.match(/^\s*(?:My name is|I am) ([A-Z][\w'-]+)/m);
+    if (m) { $("title").textContent = m[1]; document.title = m[1] + " Chat"; }
+  } catch (e) { $("selfNote").textContent = "Could not read the self document."; $("selfNote").className = "note bad"; }
+}
+$("saveSelf").addEventListener("click", async () => {
+  const r = await fetch("/api/self", { method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ text: $("selftext").value }) });
+  const ok = r.ok;
+  $("selfNote").textContent = ok ? "Saved. The next reply follows it." : "Not saved: " + ((await r.json()).error || r.statusText);
+  $("selfNote").className = "note " + (ok ? "ok" : "bad");
+  if (ok) loadSelf();
+});
+
+(async () => {
+  const t = load("temp"); if (t) { $("temp").value = t; $("tempVal").textContent = t; }
+  $("showThink").checked = load("showThink") === "1"; $("traceThink").checked = load("traceThink") === "1";
+  try {
+    const j = await (await fetch("/api/info")).json();
+    $("who").textContent = j.addon + " · self: " + j.self;
+  } catch (e) { $("who").textContent = "server not reachable"; }
+  loadSelf(); $("input").focus();
+})();
+</script>
+</body>
+</html>
