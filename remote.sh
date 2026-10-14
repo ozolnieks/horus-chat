@@ -58,7 +58,7 @@ until run "curl -s -m 5 http://127.0.0.1:$PORT/api/info" 2>/dev/null | grep -q '
   fi
   NOW="$(run 'tail -c 300 ~/horus-chat/server.log | tr "\r" "\n" | grep -v "^\s*$" | tail -1' 2>/dev/null || true)"
   [ "$NOW" != "$LAST" ] && [ -n "$NOW" ] && echo "   $NOW" && LAST="$NOW"
-  GOT="$(run 'cd ~/horus-chat && { [ -f /venv/main/bin/activate ] && . /venv/main/bin/activate; true; } && python3 -c "from huggingface_hub import constants; print(constants.HF_HUB_CACHE)" 2>/dev/null | xargs -I{} du -sb {} 2>/dev/null | cut -f1' 2>/dev/null || true)"
+  GOT="$(run 'cd ~/horus-chat && { [ -f /venv/main/bin/activate ] && . /venv/main/bin/activate; true; } && python3 -c "from huggingface_hub import constants; print(constants.HF_HUB_CACHE)" 2>/dev/null | xargs -I{} du -sb {} 2>/dev/null | cut -f1' 2>/dev/null | tail -1 | tr -cd 0-9 || true)"
   if [ -n "$GOT" ] && [ "$GOT" != "${LASTGOT:-}" ]; then
     echo "   downloaded so far: $(awk -v b="$GOT" 'BEGIN { printf "%.1f GB", b / 1e9 }')"; LASTGOT="$GOT"
   fi
