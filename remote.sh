@@ -5,16 +5,16 @@
 #   ./remote.sh "ssh -p PORT root@HOST" stop                                      # stop the server on the GPU
 #
 # Options: --addon ID_OR_FOLDER (required to start), --self my_self.md (default selves/horus.md),
-#          --port 8080 (the port on your computer and on the GPU).
+#          --port 8765 (the port on your computer; on the GPU a free one is used if it's taken).
 # What it does: copies this folder to ~/horus-chat on the GPU, installs requirements, starts server.py there
 # (listening on the GPU's 127.0.0.1 only), waits until the model is loaded, then opens the tunnel. Keep this
-# window open while you chat at http://localhost:8080; Ctrl+C closes the tunnel, the server keeps running.
+# window open while you chat at http://localhost:8765; Ctrl+C closes the tunnel, the server keeps running.
 set -euo pipefail
 
 if [ $# -lt 1 ]; then sed -n '2,11p' "$0"; exit 1; fi
 read -r -a SSH <<< "$1"; shift
 if [ "${SSH[0]:-}" != "ssh" ]; then echo "the first argument is the ssh command, e.g. \"ssh -p 12345 root@1.2.3.4\""; exit 1; fi
-ADDON="" SELF="selves/horus.md" PORT=8080 ACTION=start
+ADDON="" SELF="selves/horus.md" PORT=8765 ACTION=start
 while [ $# -gt 0 ]; do
   case "$1" in
     --addon) ADDON="$2"; shift 2 ;;
@@ -48,7 +48,9 @@ run 'cd ~/horus-chat && { [ -f /venv/main/bin/activate ] && . /venv/main/bin/act
 echo "3/4 starting the server ..."
 run "cd ~/horus-chat && { [ -f /venv/main/bin/activate ] && . /venv/main/bin/activate; true; } && \
   if [ -f server.pid ] && kill -0 \"\$(cat server.pid)\" 2>/dev/null; then echo '   already running - reconnecting'; else \
-  nohup python3 server.py --addon '$ADDON' --self '$SELF_NAME' --port $PORT > server.log 2>&1 < /dev/null & echo \$! > server.pid; echo $PORT > server.port; fi"
+  P=\$(python3 -c 'import socket,sys; p=int(sys.argv[1]); s=socket.socket(); r=s.connect_ex((\"127.0.0.1\",p)); s.close(); print(p if r else 0)' $PORT); \
+  if [ \"\$P\" = 0 ]; then P=\$(python3 -c 'import socket; s=socket.socket(); s.bind((\"127.0.0.1\",0)); print(s.getsockname()[1])'); echo \"   port $PORT is taken on the GPU machine - using \$P there\"; fi; \
+  nohup python3 server.py --addon '$ADDON' --self '$SELF_NAME' --port \$P > server.log 2>&1 < /dev/null & echo \$! > server.pid; echo \$P > server.port; fi"
 RPORT="$(run "cat ~/horus-chat/server.port 2>/dev/null || echo $PORT" 2>/dev/null | tail -1 | tr -cd 0-9)"   # a running server keeps its port
 RPORT="${RPORT:-$PORT}"
 

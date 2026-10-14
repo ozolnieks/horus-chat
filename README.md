@@ -25,7 +25,7 @@ python3 -m pip install -r requirements.txt
 python3 server.py --addon teleportal/Qwen2.5-14B-self
 ```
 
-When it prints `ready`, open **http://localhost:8080**. The first start takes longer while the base model downloads.
+When it prints `ready`, open **http://localhost:8765**. The first start takes longer while the base model downloads.
 
 ## 2. On a rented GPU, through an SSH tunnel
 
@@ -38,7 +38,7 @@ git clone https://github.com/ozolnieks/horus-chat && cd horus-chat
 ```
 
 `remote.sh` copies this folder to the GPU, installs the requirements, starts the server there, waits until the model
-has loaded, and opens the tunnel. Then open **http://localhost:8080** on your own computer. Keep the window open while
+has loaded, and opens the tunnel. Then open **http://localhost:8765** on your own computer. Keep the window open while
 you chat. Ctrl+C closes the tunnel and the server keeps running, so run the same command again to reconnect. To stop
 the server:
 
@@ -63,11 +63,11 @@ tail -f server.log            # wait for "ready", then Ctrl+C
 On your own computer, open the tunnel and leave it open:
 
 ```bash
-ssh -N -L 8080:127.0.0.1:8080 -p 12345 root@1.2.3.4
+ssh -N -L 8765:127.0.0.1:8765 -p 12345 root@1.2.3.4
 ```
 
-Then open http://localhost:8080. On Windows without WSL, the same `ssh` command works in PowerShell, and PuTTY can do it
-too (Connection > SSH > Tunnels: source port 8080, destination 127.0.0.1:8080).
+Then open http://localhost:8765. On Windows without WSL, the same `ssh` command works in PowerShell, and PuTTY can do it
+too (Connection > SSH > Tunnels: source port 8765, destination 127.0.0.1:8765).
 </details>
 
 The server listens only on the machine's own address (127.0.0.1). Nobody else can reach it; you reach it through
@@ -87,7 +87,7 @@ To start with a different self document: `python3 server.py --addon ... --self s
 
 ## For other chat clients
 
-The server also answers OpenAI-style requests at `http://localhost:8080/v1/chat/completions` (`messages`,
+The server also answers OpenAI-style requests at `http://localhost:8765/v1/chat/completions` (`messages`,
 `temperature`), so a chat client that lets you set a custom endpoint can talk to him. The self document is the one the
 server was started with.
 

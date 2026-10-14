@@ -1,7 +1,7 @@
 """Chat with a -self model (Horus, or whoever your self document describes) in the browser.
 
 Run it where the GPU is:
-    python server.py --addon teleportal/Qwen2.5-32B-self            # then open http://localhost:8080
+    python server.py --addon teleportal/Qwen2.5-32B-self            # then open http://localhost:8765
 
 On your own PC that is all. On a rented GPU, start it there and reach it through an SSH tunnel (remote.sh does both).
 It listens on 127.0.0.1 only: nobody else on the network can reach it, only you through the tunnel.
@@ -105,16 +105,20 @@ def main():
     ap.add_argument("--self", dest="self_path", default=os.path.join(HERE, "selves", "horus.md"),
                     help="the self document (default: selves/horus.md)")
     ap.add_argument("--base", default=None, help="the 4-bit base, HF id or local folder (default: the one it was trained on)")
-    ap.add_argument("--port", type=int, default=8080)
+    ap.add_argument("--port", type=int, default=8765)
     a = ap.parse_args()
     if not os.path.isfile(a.self_path):
         sys.exit("no self document at %s" % a.self_path)
     STATE.update(self=os.path.abspath(a.self_path), addon=a.addon)
+    try:                                     # take the port first: a busy port should fail now, not after the download
+        httpd = ThreadingHTTPServer(("127.0.0.1", a.port), Handler)
+    except OSError:
+        sys.exit("port %d is already in use on this machine - start with another one, e.g. --port %d" % (a.port, a.port + 1))
     print("loading %s (the first start downloads the base model, 9-18 GB) ..." % a.addon, flush=True)
     from horus_self import Horus
     STATE["h"] = Horus.load(a.addon, base=a.base)
     print("ready: open http://localhost:%d  (self: %s)" % (a.port, a.self_path), flush=True)
-    ThreadingHTTPServer(("127.0.0.1", a.port), Handler).serve_forever()
+    httpd.serve_forever()
 
 
 if __name__ == "__main__":
