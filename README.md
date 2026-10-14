@@ -12,7 +12,7 @@ laptop too) through an SSH tunnel.
 | Qwen2.5-32B-self | 24 GB or more | RTX 3090, 4090, 5090, A100 |
 | Qwen2.5-14B-self | 16 GB or more | RTX 4060 Ti 16 GB, 4080, 5080, 3090 |
 
-The trained add-on (0.3-0.6 GB) comes from Hugging Face: `<hf-user>/Qwen2.5-32B-self` or `<hf-user>/Qwen2.5-14B-self`.
+The trained add-on (0.3-0.6 GB) comes from Hugging Face: `teleportal/Qwen2.5-32B-self` or `teleportal/Qwen2.5-14B-self`.
 The base model (Qwen2.5 in 4 bits, 9-18 GB) is downloaded automatically the first time.
 
 ## 1. On your own PC
@@ -22,7 +22,7 @@ You need Linux (or Windows with WSL2), an NVIDIA GPU from the table above, a rec
 ```bash
 git clone https://github.com/<github-user>/horus-chat && cd horus-chat
 python3 -m pip install -r requirements.txt
-python3 server.py --addon <hf-user>/Qwen2.5-14B-self
+python3 server.py --addon teleportal/Qwen2.5-14B-self
 ```
 
 When it prints `ready`, open **http://localhost:8080**. The first start takes longer while the base model downloads.
@@ -34,7 +34,7 @@ disk) and copy its SSH command. Then, on your own computer (macOS, Linux, or Win
 
 ```bash
 git clone https://github.com/<github-user>/horus-chat && cd horus-chat
-./remote.sh "ssh -p 12345 root@1.2.3.4" --addon <hf-user>/Qwen2.5-32B-self
+./remote.sh "ssh -p 12345 root@1.2.3.4" --addon teleportal/Qwen2.5-32B-self
 ```
 
 `remote.sh` copies this folder to the GPU, installs the requirements, starts the server there, waits until the model
@@ -56,7 +56,7 @@ On the GPU machine:
 ```bash
 git clone https://github.com/<github-user>/horus-chat && cd horus-chat
 python3 -m pip install -r requirements.txt
-nohup python3 server.py --addon <hf-user>/Qwen2.5-32B-self > server.log 2>&1 &
+nohup python3 server.py --addon teleportal/Qwen2.5-32B-self > server.log 2>&1 &
 tail -f server.log            # wait for "ready", then Ctrl+C
 ```
 
@@ -95,7 +95,7 @@ From Python, without the server:
 
 ```python
 from horus_self import Horus
-h = Horus.load("<hf-user>/Qwen2.5-14B-self")
+h = Horus.load("teleportal/Qwen2.5-14B-self")
 answer, thinking = h.chat([{"role": "user", "content": "Hello! Who are you?"}], "selves/horus.md")
 ```
 

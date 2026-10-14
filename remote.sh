@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Run the chat on a rented GPU and use it from your own computer through an SSH tunnel.
 #
-#   ./remote.sh "ssh -p PORT root@HOST" --addon <hf-user>/Qwen2.5-32B-self      # start (or reconnect) + tunnel
+#   ./remote.sh "ssh -p PORT root@HOST" --addon teleportal/Qwen2.5-32B-self      # start (or reconnect) + tunnel
 #   ./remote.sh "ssh -p PORT root@HOST" stop                                      # stop the server on the GPU
 #
 # Options: --addon ID_OR_FOLDER (required to start), --self my_self.md (default selves/horus.md),
@@ -31,7 +31,7 @@ if [ "$ACTION" = stop ]; then
   run 'cd ~/horus-chat 2>/dev/null && [ -f server.pid ] && kill "$(cat server.pid)" 2>/dev/null && rm -f server.pid && echo "stopped" || echo "no server running"'
   exit 0
 fi
-[ -n "$ADDON" ] || { echo "--addon is required, e.g. --addon <hf-user>/Qwen2.5-32B-self"; exit 1; }
+[ -n "$ADDON" ] || { echo "--addon is required, e.g. --addon teleportal/Qwen2.5-32B-self"; exit 1; }
 [ -f "$SELF" ] || { echo "no self document at $SELF"; exit 1; }
 
 echo "1/4 copying the app to the GPU ..."

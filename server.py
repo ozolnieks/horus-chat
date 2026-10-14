@@ -1,7 +1,7 @@
 """Chat with a -self model (Horus, or whoever your self document describes) in the browser.
 
 Run it where the GPU is:
-    python server.py --addon <hf-user>/Qwen2.5-32B-self            # then open http://localhost:8080
+    python server.py --addon teleportal/Qwen2.5-32B-self            # then open http://localhost:8080
 
 On your own PC that is all. On a rented GPU, start it there and reach it through an SSH tunnel (remote.sh does both).
 It listens on 127.0.0.1 only: nobody else on the network can reach it, only you through the tunnel.
@@ -99,7 +99,7 @@ class Handler(BaseHTTPRequestHandler):
 
 def main():
     ap = argparse.ArgumentParser(description="chat with a -self model in the browser")
-    ap.add_argument("--addon", required=True, help="Hugging Face id of the model (e.g. <hf-user>/Qwen2.5-32B-self) "
+    ap.add_argument("--addon", required=True, help="Hugging Face id of the model (e.g. teleportal/Qwen2.5-32B-self) "
                                                    "or a local folder with addon.safetensors + addon_config.json")
     ap.add_argument("--self", dest="self_path", default=os.path.join(HERE, "selves", "horus.md"),
                     help="the self document (default: selves/horus.md)")
