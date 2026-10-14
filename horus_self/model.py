@@ -7,8 +7,7 @@ are not quantised - word vectors, norms, output layer - in float16). The base is
 except that the base LoRA (addon.py) is wrapped around its projections.
 
 `tiny=True` is a test hook: a tiny random Qwen2 model (4 layers of size 64) with Qwen's real tokenizer, in float32,
-built from the current torch random state. It is the same tiny model the research code builds, so the two can be
-compared on a CPU (tests/test_exact.py).
+built from the current torch random state, used to check this package on a CPU.
 """
 import torch
 

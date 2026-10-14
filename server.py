@@ -58,7 +58,8 @@ class Handler(BaseHTTPRequestHandler):
             with open(os.path.join(HERE, "web", "index.html"), "rb") as f:
                 return self._send(200, f.read(), "text/html")
         if self.path == "/api/info":
-            return self._send(200, {"addon": STATE["addon"], "self": os.path.basename(STATE["self"]),
+            name = os.path.basename(os.path.normpath(STATE["addon"])) if os.path.isdir(STATE["addon"]) else STATE["addon"]
+            return self._send(200, {"addon": name, "self": os.path.basename(STATE["self"]),
                                     "ready": STATE["h"] is not None})
         if self.path == "/api/self":
             with open(STATE["self"], encoding="utf-8") as f:

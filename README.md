@@ -75,8 +75,8 @@ your tunnel.
 
 ## Using the chat
 
-- **New conversation** starts fresh. He doesn't remember earlier conversations; that's how he is built.
-- **Self & settings** opens his self document. Edit it, press **Save self**, and the next reply follows the new
+- **New** starts a new conversation. He doesn't remember earlier conversations; that's how he is built.
+- **Self** opens his self document and the settings. Edit it, press **Save self**, and the next reply follows the new
   version. To create your own character, read [How to write a self](HOW_TO_WRITE_A_SELF.md).
 - **Show thinking**: he thinks silently, without words, before each answer; this shows where it happened.
 - **Trace thinking in words**: two written thinking steps before the silent part. This is for looking inside, not for

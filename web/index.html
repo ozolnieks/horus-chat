@@ -20,10 +20,11 @@
   body { background: var(--bg); color: var(--ink); font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
          display: flex; flex-direction: column; }
   header { display: flex; align-items: center; gap: 12px; padding: 10px 16px; border-bottom: 1px solid var(--line);
-           background: var(--panel); flex-wrap: wrap; }
+           background: var(--panel); }
+  header button { white-space: nowrap; }
   header h1 { font-size: 17px; margin: 0; font-weight: 650; }
-  header .who { color: var(--muted); font-size: 14px; }
-  header .spacer { flex: 1; }
+  header .who { color: var(--muted); font-size: 14px; flex: 1 1 0; min-width: 0; overflow: hidden;
+                 text-overflow: ellipsis; white-space: nowrap; }
   button { font: inherit; font-size: 14px; border: 1px solid var(--line); background: var(--panel); color: var(--ink);
            border-radius: 8px; padding: 6px 12px; cursor: pointer; }
   button:hover { border-color: var(--accent); }
@@ -66,15 +67,14 @@
 <header>
   <h1 id="title">Horus</h1>
   <span class="who" id="who">connecting…</span>
-  <span class="spacer"></span>
-  <button id="newBtn" type="button">New conversation</button>
-  <button id="panelBtn" type="button">Self &amp; settings</button>
+  <button id="newBtn" type="button" title="New conversation">New</button>
+  <button id="panelBtn" type="button" title="Self document and settings">Self</button>
 </header>
 <main>
   <section id="chat">
     <div id="log"><div class="empty" id="empty">Say hello. Each conversation starts fresh: he doesn't remember earlier ones.</div></div>
     <form id="form">
-      <textarea id="input" rows="1" placeholder="Message… (Enter sends, Shift+Enter: new line)" autocomplete="off"></textarea>
+      <textarea id="input" rows="1" placeholder="Message…" title="Enter sends, Shift+Enter makes a new line" autocomplete="off"></textarea>
       <button class="primary" id="sendBtn" type="submit">Send</button>
     </form>
   </section>
