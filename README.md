@@ -7,6 +7,9 @@ talk with someone else, with no retraining.
 The models run on an NVIDIA GPU. Use the one in your own PC, or rent one and reach it from any computer (a Mac or a
 laptop too) through an SSH tunnel.
 
+**Just want to try him?** [Chat with Horus in your browser](https://huggingface.co/spaces/teleportal/Horus) on Hugging Face,
+nothing to install. This app is for running the models yourself.
+
 ![Horus Chat](docs/chat.png)
 *Answers from a real session with the 14B on a rented RTX A4000 (16 GB).*
 
