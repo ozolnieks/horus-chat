@@ -2,7 +2,7 @@ Horus Chat
 Copyright 2026 IK Teleportal
 
 Licences:
-- The app (server.py, web/, remote.sh, README.md): PolyForm Noncommercial License 1.0.0 (see LICENSE.md).
+- The app (app.py, server.py, web/, remote.sh, README.md): PolyForm Noncommercial License 1.0.0 (see LICENSE.md).
 - horus_self/, selves/horus.md and HOW_TO_WRITE_A_SELF.md: Apache License, Version 2.0 (see LICENSE-APACHE and
   horus_self/LICENSE) - the same files as published with the models on Hugging Face.
 

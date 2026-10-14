@@ -7,31 +7,69 @@
 <style>
   :root {
     --bg: #f6f5f2; --panel: #ffffff; --ink: #1d1d1b; --muted: #6b6a66; --line: #e3e1db;
-    --me: #1f4e79; --me-ink: #ffffff; --him: #ffffff; --accent: #1f4e79; --warn: #8a5a00; --err: #a12a2a;
+    --me: #1f4e79; --me-ink: #ffffff; --him: #ffffff; --accent: #1f4e79; --ok: #2e7d4f; --warn: #8a5a00; --err: #a12a2a;
+    --code: #f1efe9;
   }
   @media (prefers-color-scheme: dark) {
     :root {
       --bg: #151514; --panel: #1f1f1d; --ink: #ecebe7; --muted: #9b9a95; --line: #33322f;
-      --me: #2f6aa3; --me-ink: #ffffff; --him: #262624; --accent: #7fb0e0; --warn: #e0b060; --err: #f08080;
+      --me: #2f6aa3; --me-ink: #ffffff; --him: #262624; --accent: #7fb0e0; --ok: #6fcf97; --warn: #e0b060; --err: #f08080;
+      --code: #181817;
     }
   }
   * { box-sizing: border-box; }
   html, body { height: 100%; margin: 0; }
   body { background: var(--bg); color: var(--ink); font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
          display: flex; flex-direction: column; }
-  header { display: flex; align-items: center; gap: 12px; padding: 10px 16px; border-bottom: 1px solid var(--line);
+  [hidden] { display: none !important; }
+  header { display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-bottom: 1px solid var(--line);
            background: var(--panel); }
-  header button { white-space: nowrap; }
   header h1 { font-size: 17px; margin: 0; font-weight: 650; }
-  header .who { color: var(--muted); font-size: 14px; flex: 1 1 0; min-width: 0; overflow: hidden;
-                 text-overflow: ellipsis; white-space: nowrap; }
-  button { font: inherit; font-size: 14px; border: 1px solid var(--line); background: var(--panel); color: var(--ink);
-           border-radius: 8px; padding: 6px 12px; cursor: pointer; }
+  .pill { font-size: 12px; padding: 2px 9px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted);
+          white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; flex: 0 1 auto; }
+  .pill.ready { color: var(--ok); border-color: var(--ok); }
+  .pill.busy { color: var(--warn); border-color: var(--warn); }
+  .pill.error { color: var(--err); border-color: var(--err); }
+  header .spacer { flex: 1; }
+  button, select, input[type=text] { font: inherit; font-size: 14px; border: 1px solid var(--line); background: var(--panel);
+           color: var(--ink); border-radius: 8px; padding: 6px 12px; }
+  button { cursor: pointer; white-space: nowrap; }
   button:hover { border-color: var(--accent); }
   button.primary { background: var(--accent); border-color: var(--accent); color: var(--panel); }
   button:disabled { opacity: .5; cursor: default; }
   main { flex: 1; display: flex; min-height: 0; }
-  #chat { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+  .view { flex: 1; display: flex; flex-direction: column; min-width: 0; overflow-y: auto; }
+
+  .start { max-width: 760px; width: 100%; margin: 0 auto; padding: 28px 16px; display: flex; flex-direction: column; gap: 16px; }
+  .start h2 { margin: 0; font-size: 22px; }
+  .start p.lead { margin: 0; color: var(--muted); }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px; display: flex;
+          flex-direction: column; gap: 10px; }
+  .card h3 { margin: 0; font-size: 16px; }
+  .card p { margin: 0; color: var(--muted); font-size: 14px; }
+  .card textarea { min-height: 52px; font: 13px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: 14px; }
+  .row label { color: var(--muted); }
+  #customR, #customL { flex: 1; min-width: 200px; }
+
+  .status { max-width: 860px; width: 100%; margin: 0 auto; padding: 20px 16px; display: flex; flex-direction: column; gap: 14px; }
+  .steps { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 14px; color: var(--muted); }
+  .steps span.done { color: var(--ok); } .steps span.now { color: var(--ink); font-weight: 600; }
+  .steps span.done::before { content: "✓ "; } .steps span.now::before { content: "… "; }
+  .facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; }
+  .fact { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; min-width: 0; }
+  .fact b { display: block; font-size: 12px; color: var(--muted); font-weight: 500; }
+  .fact span { font-size: 15px; overflow-wrap: anywhere; }
+  .bar { height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; margin-top: 6px; }
+  .bar i { display: block; height: 100%; background: var(--accent); width: 0; }
+  .alert { border-radius: 10px; padding: 12px 14px; border: 1px solid var(--err); color: var(--err); background: var(--panel); }
+  .alert.warn { border-color: var(--warn); color: var(--warn); }
+  .alert small { display: block; color: var(--ink); margin-top: 4px; font-size: 14px; }
+  pre.log { margin: 0; background: var(--code); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px;
+            font: 12px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; white-space: pre-wrap; overflow-wrap: anywhere;
+            max-height: 46vh; overflow-y: auto; }
+  .logtitle { font-size: 13px; color: var(--muted); margin: 4px 0 -6px; }
+
   #log { flex: 1; overflow-y: auto; padding: 20px 16px; display: flex; flex-direction: column; gap: 12px; }
   .msg { max-width: min(720px, 88%); padding: 10px 14px; border-radius: 14px; white-space: pre-wrap; overflow-wrap: anywhere; }
   .msg.user { align-self: flex-end; background: var(--me); color: var(--me-ink); border-bottom-right-radius: 4px; }
@@ -42,37 +80,84 @@
   .msg.error { align-self: center; color: var(--err); background: transparent; font-size: 14px; }
   .empty { margin: auto; text-align: center; color: var(--muted); max-width: 420px; }
   form { display: flex; gap: 8px; padding: 12px 16px 6px; border-top: 1px solid var(--line); background: var(--panel); }
-  .aiNote { margin: 0; padding: 0 16px 10px; background: var(--panel); color: var(--muted); font-size: 12px; text-align: center; }
   textarea { font: inherit; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 10px;
              padding: 10px 12px; resize: none; }
   #input { flex: 1; min-height: 44px; max-height: 200px; }
-  aside { width: 380px; border-left: 1px solid var(--line); background: var(--panel); display: none; flex-direction: column; }
+  .aiNote { margin: 0; padding: 0 16px 10px; background: var(--panel); color: var(--muted); font-size: 12px; text-align: center; }
+
+  aside { width: 400px; border-left: 1px solid var(--line); background: var(--panel); display: none; flex-direction: column; }
   aside.open { display: flex; }
-  aside .head { padding: 12px 16px; border-bottom: 1px solid var(--line); }
-  aside .head h2 { font-size: 15px; margin: 0 0 4px; }
-  aside .head p { margin: 0; color: var(--muted); font-size: 13px; }
+  aside .head { padding: 12px 16px; border-bottom: 1px solid var(--line); display: flex; gap: 8px; align-items: center; }
+  aside .head h2 { font-size: 15px; margin: 0; flex: 1; }
   aside .body { flex: 1; padding: 12px 16px; display: flex; flex-direction: column; gap: 10px; min-height: 0; overflow-y: auto; }
+  aside .body p { margin: 0; color: var(--muted); font-size: 13px; }
   #selftext { flex: 1; min-height: 240px; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
   label.opt { display: flex; gap: 8px; align-items: flex-start; font-size: 14px; }
   label.opt small { display: block; color: var(--muted); font-size: 12px; }
-  .row { display: flex; gap: 8px; align-items: center; font-size: 14px; }
-  .note { font-size: 13px; color: var(--muted); }
-  .note.ok { color: var(--accent); } .note.bad { color: var(--err); }
-  @media (max-width: 760px) {
-    aside { position: fixed; inset: 0; width: auto; z-index: 5; }
-    header { padding: 10px 16px; }
-  }
+  .note { font-size: 13px; color: var(--muted); } .note.ok { color: var(--ok); } .note.bad { color: var(--err); }
+  @media (max-width: 760px) { aside { position: fixed; inset: 0; width: auto; z-index: 5; } }
 </style>
 </head>
 <body>
 <header>
   <h1 id="title">Horus</h1>
-  <span class="who" id="who">connecting…</span>
-  <button id="newBtn" type="button" title="New conversation">New</button>
-  <button id="panelBtn" type="button" title="Self document and settings">Self</button>
+  <span class="pill" id="pill">starting…</span>
+  <span class="spacer"></span>
+  <button id="newBtn" type="button" title="New conversation" hidden>New</button>
+  <button id="statusBtn" type="button" title="Connection, GPU and log">Status</button>
+  <button id="panelBtn" type="button" title="Self document and settings" hidden>Self</button>
 </header>
 <main>
-  <section id="chat">
+  <section class="view" id="startView" hidden>
+    <div class="start">
+      <h2>Where should the model run?</h2>
+      <p class="lead">It needs an NVIDIA GPU: 16 GB of memory for the 14B model, 24 GB for the 32B.</p>
+      <div class="card">
+        <h3>A rented GPU</h3>
+        <p>Paste the SSH command from your provider (Vast.ai, RunPod, …). The app sets everything up there and shows each
+           step. It uses your own SSH key, like your terminal does.</p>
+        <textarea id="sshLine" spellcheck="false" placeholder="ssh -p 12345 root@1.2.3.4"></textarea>
+        <div class="row"><label for="modelR">Model</label>
+          <select id="modelR"></select>
+          <input type="text" id="customR" placeholder="Hugging Face id or folder on the GPU" hidden>
+          <button class="primary" id="connectBtn" type="button">Connect</button></div>
+      </div>
+      <div class="card">
+        <h3>This computer</h3>
+        <p>If this computer has a suitable NVIDIA GPU and the requirements installed
+           (<code>pip install -r requirements.txt</code>).</p>
+        <div class="row"><label for="modelL">Model</label>
+          <select id="modelL"></select>
+          <input type="text" id="customL" placeholder="Hugging Face id or local folder" hidden>
+          <button id="localBtn" type="button">Start here</button></div>
+      </div>
+      <p class="note" id="startNote"></p>
+    </div>
+  </section>
+
+  <section class="view" id="statusView" hidden>
+    <div class="status">
+      <div class="steps" id="steps"></div>
+      <div id="alert"></div>
+      <div class="facts">
+        <div class="fact"><b>Model</b><span id="fModel">–</span></div>
+        <div class="fact"><b>Model files on the GPU machine</b><span id="fDl">–</span></div>
+        <div class="fact"><b>GPU memory</b><span id="fGpu">–</span><div class="bar"><i id="gpuBar"></i></div></div>
+      </div>
+      <div class="row">
+        <button class="primary" id="toChatBtn" type="button" hidden>Go to the chat</button>
+        <button id="retryBtn" type="button" hidden>Connect again</button>
+        <button id="otherBtn" type="button" hidden>Choose another machine</button>
+        <button id="stopBtn" type="button" hidden>Stop the model server</button>
+      </div>
+      <div class="logtitle" id="appLogTitle">Log of this app</div>
+      <pre class="log" id="appLog"></pre>
+      <div class="logtitle">Log of the model server (on the GPU)</div>
+      <pre class="log" id="srvLog">–</pre>
+    </div>
+  </section>
+
+  <section class="view" id="chatView" hidden>
     <div id="log"><div class="empty" id="empty">Say hello. Each conversation starts fresh: he doesn't remember earlier ones.</div></div>
     <form id="form">
       <textarea id="input" rows="1" placeholder="Message…" title="Enter sends, Shift+Enter makes a new line" autocomplete="off"></textarea>
@@ -80,32 +165,154 @@
     </form>
     <p class="aiNote">You're talking with an AI. Answers can be wrong. Not for emergencies, or for medical, legal or financial advice.</p>
   </section>
+
   <aside id="panel">
-    <div class="head">
-      <h2>Self document</h2>
-      <p>Who he is. Edit and save: the next reply follows the new version. See HOW_TO_WRITE_A_SELF.md.</p>
-    </div>
+    <div class="head"><h2>Self document</h2><button id="closePanel" type="button">Close</button></div>
     <div class="body">
+      <p>Who he is. Edit and save: the next reply follows the new version. See HOW_TO_WRITE_A_SELF.md.</p>
       <textarea id="selftext" spellcheck="false"></textarea>
       <div class="row"><button id="saveSelf" type="button">Save self</button><span class="note" id="selfNote"></span></div>
       <label class="opt"><input type="checkbox" id="showThink"><span>Show thinking<small>He thinks silently, without words; this shows where it happened.</small></span></label>
       <label class="opt"><input type="checkbox" id="traceThink"><span>Trace thinking in words<small>Two written thinking steps before the silent part. For looking inside, not for normal chat: it changes his answers.</small></span></label>
       <div class="row">Temperature <input type="range" id="temp" min="0" max="1.2" step="0.1" value="0.6"><span id="tempVal">0.6</span></div>
-      <button id="closePanel" type="button">Close</button>
     </div>
   </aside>
 </main>
 <script>
 const $ = id => document.getElementById(id);
-let messages = [], busy = false;
+const MODELS = [["teleportal/Qwen2.5-14B-self", "Horus 14B (16 GB GPU)"], ["teleportal/Qwen2.5-32B-self", "Horus 32B (24 GB GPU)"],
+                ["custom", "Other (Hugging Face id or folder)…"]];
+const PHASES = [["connecting", "Connect"], ["copying", "Copy the app"], ["installing", "Install"], ["starting", "Start the server"],
+                ["tunnel", "Open the tunnel"], ["loading", "Download & load the model"], ["ready", "Ready"]];
+let APP = false, phase = null, prevPhase = null, lastPhase = null, messages = [], busy = false, view = null, chatSeen = false, pollTimer = null;
 
-function store(key, val) { try { val === undefined ? localStorage.removeItem(key) : localStorage.setItem(key, val); } catch (e) {} }
-function load(key) { try { return localStorage.getItem(key); } catch (e) { return null; } }
+function store(k, v) { try { v === undefined ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch (e) {} }
+function load(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+function gb(b) { return b == null ? "–" : (b / 1e9).toFixed(1) + " GB"; }
+
+function show(v) {
+  view = v;
+  for (const id of ["startView", "statusView", "chatView"]) $(id).hidden = id !== v;
+  $("newBtn").hidden = $("panelBtn").hidden = v !== "chatView";
+  $("statusBtn").textContent = v === "statusView" && phase === "ready" ? "Chat" : "Status";
+  if (v === "chatView") { $("input").focus(); if (!chatSeen) { chatSeen = true; loadSelf(); } }
+}
+
+for (const sel of ["modelR", "modelL"]) for (const [v, t] of MODELS) $(sel).add(new Option(t, v));
+function pick(sel, custom) {
+  $(custom).hidden = $(sel).value !== "custom";
+  return $(sel).value === "custom" ? $(custom).value.trim() : $(sel).value;
+}
+$("modelR").addEventListener("change", () => pick("modelR", "customR"));
+$("modelL").addEventListener("change", () => pick("modelL", "customL"));
+$("sshLine").value = load("sshLine") || "";
+if (load("model")) { $("modelR").value = $("modelL").value = load("model"); pick("modelR", "customR"); pick("modelL", "customL"); }
+if (load("custom")) $("customR").value = $("customL").value = load("custom");
+
+async function begin(path, body) {
+  $("startNote").textContent = "";
+  if (!body.addon) { $("startNote").textContent = "Choose a model."; $("startNote").className = "note bad"; return; }
+  const r = await fetch(path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  const j = await r.json();
+  if (!r.ok) { $("startNote").textContent = j.error || r.statusText; $("startNote").className = "note bad"; return; }
+  messages = []; chatSeen = false; prevPhase = null;
+  $("log").innerHTML = '<div class="empty" id="empty">Say hello. Each conversation starts fresh: he doesn\'t remember earlier ones.</div>';
+  show("statusView"); setTimeout(poll, 500);
+}
+$("connectBtn").addEventListener("click", () => {
+  const ssh = $("sshLine").value.trim(), addon = pick("modelR", "customR");
+  if (!ssh) { $("startNote").textContent = "Paste the SSH command first."; $("startNote").className = "note bad"; return; }
+  store("sshLine", ssh); store("model", $("modelR").value); store("custom", $("customR").value);
+  begin("/app/connect", { ssh, addon });
+});
+$("localBtn").addEventListener("click", () => {
+  store("model", $("modelL").value); store("custom", $("customL").value);
+  begin("/app/local", { addon: pick("modelL", "customL") });
+});
+
+function render(s) {
+  phase = s.phase;
+  const srv = s.server || {};
+  const cur = s.phase === "error" ? s.lastPhase : s.phase;
+  const idx = PHASES.findIndex(p => p[0] === cur);
+  $("steps").innerHTML = "";
+  PHASES.forEach(([k, t], i) => {
+    if (s.mode !== "remote" && ["connecting", "copying", "installing", "tunnel"].includes(k)) return;
+    const e = document.createElement("span"); e.textContent = t;
+    if (s.phase === "ready" || i < idx) e.className = "done"; else if (i === idx && s.phase !== "error") e.className = "now";
+    $("steps").appendChild(e);
+  });
+  const alert = $("alert"); alert.innerHTML = "";
+  if (s.phase === "error" || s.stalled) {
+    const d = document.createElement("div"); d.className = "alert" + (s.phase === "error" ? "" : " warn");
+    d.textContent = s.phase === "error" ? s.error : "The download has made no progress for 2 minutes - it may have stalled.";
+    const hint = s.phase === "error" ? s.hint : "This is usually the machine's own connection. Wait a little, press Connect again (the download continues where it stopped), or choose another machine.";
+    if (hint) { const h = document.createElement("small"); h.textContent = hint; d.appendChild(h); }
+    alert.appendChild(d);
+  }
+  $("fModel").textContent = (s.addon || srv.addon || "–") + (srv.stage ? " · " + srv.stage : "");
+  $("fDl").textContent = gb(srv.downloaded);
+  const g = srv.gpu;
+  $("fGpu").textContent = g ? `${(g.used_mb / 1024).toFixed(1)} of ${(g.total_mb / 1024).toFixed(1)} GB · ${g.name}` : "–";
+  $("gpuBar").style.width = g ? Math.round(100 * g.used_mb / g.total_mb) + "%" : "0";
+  $("appLog").hidden = $("appLogTitle").hidden = !APP;
+  for (const [id, lines] of [["appLog", s.log], ["srvLog", srv.log]]) {
+    const el = $(id), atEnd = el.scrollHeight - el.scrollTop - el.clientHeight < 30;
+    el.textContent = (lines && lines.length) ? lines.join("\n") : "–";
+    if (atEnd) el.scrollTop = el.scrollHeight;
+  }
+  $("toChatBtn").hidden = s.phase !== "ready";
+  $("retryBtn").hidden = !(APP && s.mode === "remote" && (s.phase === "error" || s.stalled));
+  $("otherBtn").hidden = !APP || !["error", "ready", "loading"].includes(s.phase);
+  $("stopBtn").hidden = !APP || !s.mode || s.phase === "idle";
+  const pill = $("pill");
+  if (s.phase === "ready") { pill.textContent = "ready" + (s.mode === "remote" ? " · rented GPU" : ""); pill.className = "pill ready"; }
+  else if (s.phase === "error") { pill.textContent = "error - see Status"; pill.className = "pill error"; }
+  else if (s.phase === "idle") { pill.textContent = "not connected"; pill.className = "pill"; }
+  else { pill.textContent = (s.stalled ? "stalled? " : "") + ((PHASES.find(p => p[0] === s.phase) || [0, s.phase])[1]).toLowerCase() +
+         (srv.downloaded && srv.stage !== "ready" ? " · " + gb(srv.downloaded) : ""); pill.className = "pill busy"; }
+}
+
+async function poll() {
+  clearTimeout(pollTimer);
+  let s;
+  try {
+    if (APP) s = await (await fetch("/app/state")).json();
+    else {                                      // the page is served straight by server.py
+      const srv = await (await fetch("/api/status")).json();
+      s = { mode: "direct", phase: srv.stage === "ready" ? "ready" : srv.stage === "error" ? "error" : "loading",
+            error: srv.error && "the model failed to load: " + srv.error, hint: "see the model server's log below",
+            addon: srv.addon, log: [], server: srv };
+    }
+  } catch (e) {
+    s = { phase: "error", error: "this page lost its connection", log: [],
+          hint: APP ? "is app.py still running on this computer?" : "is the server (and the SSH tunnel) still running?" };
+  }
+  if (s.phase !== "error") lastPhase = s.phase;
+  s.lastPhase = lastPhase;
+  render(s);
+  if (s.phase === "idle" && APP && view !== "startView") show("startView");
+  if (s.phase === "ready" && view === "statusView" && prevPhase && prevPhase !== "ready") show("chatView");
+  prevPhase = s.phase;
+  pollTimer = setTimeout(poll, s.phase === "ready" || s.phase === "idle" ? 8000 : 2000);
+}
+
+$("statusBtn").addEventListener("click", () => {
+  if (view === "statusView" && phase === "ready") show("chatView");
+  else if (APP && phase === "idle") show("startView");
+  else { show("statusView"); poll(); }
+});
+$("toChatBtn").addEventListener("click", () => show("chatView"));
+$("retryBtn").addEventListener("click", () => begin("/app/connect", { ssh: $("sshLine").value.trim(), addon: pick("modelR", "customR") }));
+$("otherBtn").addEventListener("click", async () => { await fetch("/app/disconnect", { method: "POST" }); show("startView"); poll(); });
+$("stopBtn").addEventListener("click", async () => {
+  if (!confirm("Stop the model server? A rented machine keeps running (and billing) until you stop it at your provider.")) return;
+  await fetch("/app/stop", { method: "POST" }); setTimeout(poll, 1500);
+});
 
 function add(role, text, extra) {
   $("empty")?.remove();
-  const d = document.createElement("div");
-  d.className = "msg " + role;
+  const d = document.createElement("div"); d.className = "msg " + role;
   if (extra && extra.thinking && $("showThink").checked) {
     const t = document.createElement("span"); t.className = "think"; t.textContent = extra.thinking; d.appendChild(t);
   }
@@ -113,44 +320,37 @@ function add(role, text, extra) {
   if (extra && extra.seconds !== undefined) {
     const m = document.createElement("span"); m.className = "meta"; m.textContent = extra.seconds + " s"; d.appendChild(m);
   }
-  $("log").appendChild(d);
-  $("log").scrollTop = $("log").scrollHeight;
+  $("log").appendChild(d); $("log").scrollTop = $("log").scrollHeight;
   return d;
 }
-
 async function send(text) {
   if (busy || !text.trim()) return;
   busy = true; $("sendBtn").disabled = true;
-  messages.push({ role: "user", content: text });
-  add("user", text);
+  messages.push({ role: "user", content: text }); add("user", text);
   const wait = add("assistant", "…");
   try {
     const r = await fetch("/api/chat", { method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ messages, temperature: parseFloat($("temp").value), written_thinking: $("traceThink").checked }) });
-    const j = await r.json();
-    wait.remove();
+    const j = await r.json(); wait.remove();
     if (!r.ok) throw new Error(j.error || r.statusText);
-    messages.push({ role: "assistant", content: j.answer });
-    add("assistant", j.answer, j);
+    messages.push({ role: "assistant", content: j.answer }); add("assistant", j.answer, j);
   } catch (e) {
     wait.remove(); messages.pop();
-    add("error", "No answer: " + e.message + " — is the server (and the SSH tunnel) still running?");
+    add("error", "No answer: " + e.message + " — open Status to see what happened.");
+    poll();
   }
   busy = false; $("sendBtn").disabled = false; $("input").focus();
 }
-
 $("form").addEventListener("submit", e => { e.preventDefault(); const t = $("input").value; $("input").value = ""; autosize(); send(t); });
 $("input").addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); $("form").requestSubmit(); } });
 function autosize() { const i = $("input"); i.style.height = "auto"; i.style.height = Math.min(i.scrollHeight, 200) + "px"; }
 $("input").addEventListener("input", autosize);
-$("newBtn").addEventListener("click", () => {
-  messages = []; $("log").innerHTML = '<div class="empty" id="empty">New conversation.</div>'; $("input").focus();
-});
+$("newBtn").addEventListener("click", () => { messages = []; $("log").innerHTML = '<div class="empty" id="empty">New conversation.</div>'; $("input").focus(); });
+
 $("panelBtn").addEventListener("click", () => $("panel").classList.toggle("open"));
 $("closePanel").addEventListener("click", () => $("panel").classList.remove("open"));
 $("temp").addEventListener("input", () => { $("tempVal").textContent = $("temp").value; store("temp", $("temp").value); });
 for (const id of ["showThink", "traceThink"]) $(id).addEventListener("change", () => store(id, $(id).checked ? "1" : "0"));
-
 async function loadSelf() {
   try {
     const j = await (await fetch("/api/self")).json();
@@ -160,8 +360,7 @@ async function loadSelf() {
   } catch (e) { $("selfNote").textContent = "Could not read the self document."; $("selfNote").className = "note bad"; }
 }
 $("saveSelf").addEventListener("click", async () => {
-  const r = await fetch("/api/self", { method: "POST", headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ text: $("selftext").value }) });
+  const r = await fetch("/api/self", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text: $("selftext").value }) });
   const ok = r.ok;
   $("selfNote").textContent = ok ? "Saved. The next reply follows it." : "Not saved: " + ((await r.json()).error || r.statusText);
   $("selfNote").className = "note " + (ok ? "ok" : "bad");
@@ -171,11 +370,10 @@ $("saveSelf").addEventListener("click", async () => {
 (async () => {
   const t = load("temp"); if (t) { $("temp").value = t; $("tempVal").textContent = t; }
   $("showThink").checked = load("showThink") === "1"; $("traceThink").checked = load("traceThink") === "1";
-  try {
-    const j = await (await fetch("/api/info")).json();
-    $("who").textContent = j.addon + " · self: " + j.self;
-  } catch (e) { $("who").textContent = "server not reachable"; }
-  loadSelf(); $("input").focus();
+  try { APP = (await fetch("/app/state")).ok; } catch (e) { APP = false; }
+  await poll();
+  if (!APP) show(phase === "ready" ? "chatView" : "statusView");
+  else show(phase === "idle" ? "startView" : phase === "ready" ? "chatView" : "statusView");
 })();
 </script>
 </body>

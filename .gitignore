@@ -1,6 +1,7 @@
-__pycache__/
 *.pyc
 .DS_Store
+__pycache__/
+server.addon
 server.log
 server.pid
 server.port
