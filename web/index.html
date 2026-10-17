@@ -174,6 +174,7 @@
       <div class="row"><button id="saveSelf" type="button">Save self</button><span class="note" id="selfNote"></span></div>
       <label class="opt"><input type="checkbox" id="showThink"><span>Show thinking<small>He thinks silently, without words; this shows where it happened.</small></span></label>
       <label class="opt"><input type="checkbox" id="traceThink"><span>Trace thinking in words<small>Two written thinking steps before the silent part. For looking inside, not for normal chat: it changes his answers.</small></span></label>
+      <label class="opt"><input type="checkbox" id="solvedFirst"><span>Think from the goal<small>For questions about making or solving something, he first thinks as if it were already done, then works out how it was reached.</small></span></label>
       <div class="row">Temperature <input type="range" id="temp" min="0" max="1.2" step="0.1" value="0.6"><span id="tempVal">0.6</span></div>
     </div>
   </aside>
@@ -330,7 +331,7 @@ async function send(text) {
   const wait = add("assistant", "…");
   try {
     const r = await fetch("/api/chat", { method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ messages, temperature: parseFloat($("temp").value), written_thinking: $("traceThink").checked }) });
+      body: JSON.stringify({ messages, temperature: parseFloat($("temp").value), written_thinking: $("traceThink").checked, solved_first: $("solvedFirst").checked }) });
     const j = await r.json(); wait.remove();
     if (!r.ok) throw new Error(j.error || r.statusText);
     messages.push({ role: "assistant", content: j.answer }); add("assistant", j.answer, j);
@@ -350,7 +351,7 @@ $("newBtn").addEventListener("click", () => { messages = []; $("log").innerHTML 
 $("panelBtn").addEventListener("click", () => $("panel").classList.toggle("open"));
 $("closePanel").addEventListener("click", () => $("panel").classList.remove("open"));
 $("temp").addEventListener("input", () => { $("tempVal").textContent = $("temp").value; store("temp", $("temp").value); });
-for (const id of ["showThink", "traceThink"]) $(id).addEventListener("change", () => store(id, $(id).checked ? "1" : "0"));
+for (const id of ["showThink", "traceThink", "solvedFirst"]) $(id).addEventListener("change", () => store(id, $(id).checked ? "1" : "0"));
 async function loadSelf() {
   try {
     const j = await (await fetch("/api/self")).json();
@@ -369,7 +370,7 @@ $("saveSelf").addEventListener("click", async () => {
 
 (async () => {
   const t = load("temp"); if (t) { $("temp").value = t; $("tempVal").textContent = t; }
-  $("showThink").checked = load("showThink") === "1"; $("traceThink").checked = load("traceThink") === "1";
+  $("showThink").checked = load("showThink") === "1"; $("traceThink").checked = load("traceThink") === "1"; $("solvedFirst").checked = load("solvedFirst") === "1";
   try { APP = (await fetch("/app/state")).ok; } catch (e) { APP = false; }
   await poll();
   if (!APP) show(phase === "ready" ? "chatView" : "statusView");

@@ -47,6 +47,12 @@ NEEDS_STEPS = re.compile(r"\d|\b(one|two|three|four|five|six|seven|eight|nine|te
                          r"euros?|dollars?|km|kilomet|miles?|faster|slower|older|younger|more than|less than|times)\b", re.I)
 THINK_MAX = 110          # pieces per written thinking step
 STEPS_MAX = 400          # pieces for the written steps
+# The optional "solved first" thinking step (2026-10-17, chat(..., solved_first=True)): for a question about making,
+# reaching or solving something, he first writes in his thinking how it was most probably done, as if already done -
+# then thinks silently and answers. Off by default (the answers are then exactly as without it).
+SOLVED_Q = "Suppose this is already done. How was it most probably done?"
+NEEDS_SOLVED = re.compile(r"\b(invent\w*|design|build)\b|\bhow\b.*\b(make|build|get|achieve|stop|solve|create|design|become|"
+                          r"reach|improve|fix|turn|keep|find|grow|win|reduce|prevent|save)\b", re.I)
 FREQ_PENALTY = 0.3
 
 
@@ -125,11 +131,13 @@ class Horus:
 
     # --- the reply ------------------------------------------------------------------------------------------------
     @torch.no_grad()
-    def chat(self, messages, self_path, temperature=0.6, max_new=1000, written_thinking=False, history=30):
+    def chat(self, messages, self_path, temperature=0.6, max_new=1000, written_thinking=False, history=30, solved_first=False):
         """messages: [{"role": "user" | "assistant" | "system", "content": str}, ...] (the newest last);
         self_path: the self document; history: only the last `history` messages are read (None = all).
         written_thinking: also answer the two written thinking steps (compare, steps) before the thinking places - for
         tracing his thinking; it changes his answers (more self repetition, weaker long texts), so not for normal chat.
+        solved_first: for a question about making, reaching or solving something, he first writes in his thinking how it
+        was most probably done, as if already done ("Suppose this is already done..."), then answers. Off by default.
         -> (answer, thinking)"""
         model, tok, dev, emb = self.model, self.tok, self.dev, self._emb()
         if history:
@@ -219,6 +227,10 @@ class Horus:
                 feed(self.words(frame.think_lead() + " " + STEPS_Q + " " + st, "myself"))
             feed(self.words("\n", "myself"))
             written = (written + "\n" + STEPS_Q + " " + st).strip()
+        if solved_first and NEEDS_SOLVED.search(newest):
+            sv = speak("myself", frame.think_lead() + " " + SOLVED_Q, frame.stops() + ["\n"], min(max_new, STEPS_MAX))
+            feed(self.words("\n", "myself"))
+            written = (written + "\n" + SOLVED_Q + " " + sv).strip()
         self.times["steps"] = time.time() - t0; t0 = time.time()
         feed(self.words(frame.think_lead(), "myself"))
         feed((self.vec.latent.to(emb.weight.dtype) + self.vec.marker("myself").to(emb.weight.dtype)).unsqueeze(0))
@@ -252,8 +264,9 @@ def load(addon_dir, base=None, tiny=False):
     return _DEFAULT["h"]
 
 
-def chat(messages, self_path, temperature=0.6, max_new=1000, written_thinking=False):
+def chat(messages, self_path, temperature=0.6, max_new=1000, written_thinking=False, solved_first=False):
     """-> (answer, thinking) with the model loaded by load()"""
     if "h" not in _DEFAULT:
         raise RuntimeError("call horus_self.load(addon_dir) first")
-    return _DEFAULT["h"].chat(messages, self_path, temperature=temperature, max_new=max_new, written_thinking=written_thinking)
+    return _DEFAULT["h"].chat(messages, self_path, temperature=temperature, max_new=max_new, written_thinking=written_thinking,
+                               solved_first=solved_first)

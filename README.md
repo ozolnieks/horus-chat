@@ -89,6 +89,8 @@ with a GPU, `python3 server.py --addon teleportal/Qwen2.5-14B-self` alone is eno
 - **Trace thinking in words**: two written thinking steps before the silent part. This is for looking inside, not for
   normal chat, because it changes his answers (in our tests he repeated his self document more often, and long texts
   held together less well).
+- **Think from the goal**: for a question about making or solving something, he first thinks as if it were already done
+  and works out how it was most probably reached, then answers. Off by default.
 
 To start with a different self document: `python3 server.py --addon ... --self selves/my_self.md`.
 

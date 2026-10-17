@@ -9,7 +9,7 @@ rented). The page and the status are served from the first second, while the mod
     GET  /                      the chat page (web/index.html)
     GET  /api/status            stage (loading / ready / error), error, downloaded bytes, GPU memory, the last log lines
     GET  /api/info              which model and self document are loaded
-    POST /api/chat              {"messages": [...], "temperature": 0.6, "written_thinking": false}
+    POST /api/chat              {"messages": [...], "temperature": 0.6, "written_thinking": false, "solved_first": false}
                                 -> {"answer", "thinking", "seconds"}
     GET  /api/self              the self document's text
     POST /api/self              {"text": "..."} - saves the self document; the next reply follows it
@@ -89,7 +89,7 @@ def gpu():
         return None
 
 
-def reply(messages, temperature=0.6, written_thinking=False):
+def reply(messages, temperature=0.6, written_thinking=False, solved_first=False):
     """one answer from the loaded model; one at a time (the GPU holds one conversation step at a time)"""
     if STATE["stage"] != "ready":
         raise RuntimeError("the model is not ready yet (%s)" % STATE["stage"])
@@ -100,7 +100,7 @@ def reply(messages, temperature=0.6, written_thinking=False):
     with STATE["lock"]:
         t0 = time.time()
         answer, thinking = STATE["h"].chat(msgs, STATE["self"], temperature=float(temperature),
-                                           written_thinking=bool(written_thinking))
+                                           written_thinking=bool(written_thinking), solved_first=bool(solved_first))
     return answer, thinking, round(time.time() - t0, 1)
 
 
@@ -142,7 +142,7 @@ class Handler(BaseHTTPRequestHandler):
             return self._send(400, {"error": "bad json"})
         try:
             if self.path == "/api/chat":
-                a, t, s = reply(j.get("messages", []), j.get("temperature", 0.6), j.get("written_thinking", False))
+                a, t, s = reply(j.get("messages", []), j.get("temperature", 0.6), j.get("written_thinking", False), j.get("solved_first", False))
                 return self._send(200, {"answer": a, "thinking": t, "seconds": s})
             if self.path == "/v1/chat/completions":
                 a, t, s = reply(j.get("messages", []), j.get("temperature", 0.6))
